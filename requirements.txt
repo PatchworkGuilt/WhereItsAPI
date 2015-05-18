@@ -1,0 +1,4 @@
+Flask==0.9
+Flask-BasicAuth==0.1.0
+Flask-Cache==0.12
+Flask-Login==0.1.3
