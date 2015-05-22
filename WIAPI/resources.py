@@ -45,6 +45,7 @@ class Root(Resource):
         return {
             'status': 'OK',
             'mongo': str(mongo.db),
+            'message': "I'm fine"
         }
 
 api.add_resource(Root, '/')
