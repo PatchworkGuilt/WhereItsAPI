@@ -10,7 +10,10 @@ if not MONGO_URL:
     MONGO_URL = "mongodb://localhost:6789/WhereItsAPI";
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = MONGO_URL
+app.config.from_object(os.environ['APP_SETTINGS'])
+#app.config['MONGO_URI'] = MONGO_URL
+print(os.environ['APP_SETTINGS'])
+
 app.debug = True
 mongo = PyMongo(app)
 
