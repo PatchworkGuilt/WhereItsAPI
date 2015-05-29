@@ -1,21 +1,17 @@
 import os
 from flask import Flask
 from flask.ext import restful
-from flask.ext.pymongo import PyMongo
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask import make_response
 from bson.json_util import dumps
 
-MONGO_URL = os.environ.get('MONGO_URL')
-if not MONGO_URL:
-    MONGO_URL = "mongodb://localhost:6789/WhereItsAPI";
-
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
-#app.config['MONGO_URI'] = MONGO_URL
+db = SQLAlchemy(app)
+db.create_all()
 print(os.environ['APP_SETTINGS'])
 
 app.debug = True
-mongo = PyMongo(app)
 
 @app.after_request
 def after_request(response):
