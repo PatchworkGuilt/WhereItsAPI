@@ -2,6 +2,7 @@ from WIAPI import db
 from sqlalchemy.dialects.postgresql import JSON
 
 class Offer(db.Model):
+	__tablename__ = 'offers'
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String)
 	description = db.Column(db.String)
