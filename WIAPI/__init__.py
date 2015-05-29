@@ -9,7 +9,6 @@ app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 db.create_all()
-print(os.environ['APP_SETTINGS'])
 
 app.debug = True
 
