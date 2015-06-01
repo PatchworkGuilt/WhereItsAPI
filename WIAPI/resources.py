@@ -9,7 +9,7 @@ class OfferEndpoint(Resource):
     def __init__(self, *args, **kwargs):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('title', type=str, required=True, help="Title is required")
-        self.parser.add_argument('description', type=str, required=True, help="Description is required")
+        self.parser.add_argument('description', type=str, required=False, help="Description is required")
         self.parser.add_argument('venue', type=str, required=True, help="Venue is required")
         super(OfferEndpoint, self).__init__()
 
@@ -18,7 +18,7 @@ class OfferEndpoint(Resource):
         offer = Offer(
             title = args['title'],
             description= args['description'],
-            venue = args['description']
+            venue = args['venue']
         )
 
         db.session.add(offer)
