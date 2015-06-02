@@ -13,7 +13,7 @@ class OfferEndpoint(Resource):
         self.parser.add_argument('venue', type=str, required=True, help="Venue is required")
         super(OfferEndpoint, self).__init__()
 
-    def get(self):
+    def post(self):
         args = self.parser.parse_args()
         offer = Offer(
             title = args['title'],
