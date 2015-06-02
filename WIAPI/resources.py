@@ -50,4 +50,4 @@ class Root(Resource):
 api.add_resource(Root, '/')
 api.add_resource(MyOffersList, '/offers/mine')
 api.add_resource(NearbyOffersList, '/offers/nearby')
-api.add_resource(OfferEndpoint, '/offers/<offer_id>', '/offers')
+api.add_resource(OfferEndpoint, '/do_create_offer', '/offers')
