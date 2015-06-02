@@ -13,7 +13,7 @@ class OfferEndpoint(Resource):
         self.parser.add_argument('venue', type=str, required=True, help="Venue is required")
         super(OfferEndpoint, self).__init__()
 
-    def post(self):
+    def get(self):
         args = self.parser.parse_args()
         offer = Offer(
             title = args['title'],
@@ -50,4 +50,4 @@ class Root(Resource):
 api.add_resource(Root, '/')
 api.add_resource(MyOffersList, '/offers/mine')
 api.add_resource(NearbyOffersList, '/offers/nearby')
-api.add_resource(OfferEndpoint, '/do_create_offer', '/offers')
+api.add_resource(OfferEndpoint, '/offers/<offer_id>', '/offers')
