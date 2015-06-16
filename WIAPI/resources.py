@@ -30,6 +30,10 @@ class OfferEndpoint(Resource):
         #mongo.db.offers.remove({"_id": offer_id})
         return '', 204
 
+    def get(self, offer_id):
+        offer = Offer.query.get(offer_id)
+        return offer.toJSON()
+
 class MyOffersList(Resource):
     def get(self):
         offers = Offer.query.all()
