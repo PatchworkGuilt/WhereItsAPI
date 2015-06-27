@@ -39,7 +39,6 @@ class OfferEndpoint(Resource):
         #mongo.db.offers.remove({"_id": offer_id})
         return '', 204
 
-    @login_required
     def get(self, offer_id):
         offer = models.Offer.query.get(offer_id)
         return offer.toJSON()
