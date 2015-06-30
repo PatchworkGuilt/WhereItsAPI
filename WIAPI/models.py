@@ -20,7 +20,7 @@ class Offer(db.Model):
 		self.venue = venue
 		self.start_time = start_time
 		self.end_time = end_time
-		self.created_at = datime.datetime.utcnow()
+		self.created_at = datetime.datetime.utcnow()
 
 	def __repr__(self):
 		return '<Offer {}: {}>'.format(self.id, self.title)
