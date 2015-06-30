@@ -61,7 +61,7 @@ class User(db.Model):
 
 	@staticmethod
 	def find_by_auth_token(token):
-		id, hash = token.split(":&&:")
+		id, hash = token.split(":&&:	")
 		return User.query.filter_by(id=id, hash=hash).first()
 
 	def is_authenticated(self):

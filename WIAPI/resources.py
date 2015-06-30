@@ -14,8 +14,8 @@ class OfferEndpoint(Resource):
         self.parser.add_argument('title', type=str, required=True, help="Title is required")
         self.parser.add_argument('description', type=str, required=False, help="Description is required")
         self.parser.add_argument('venue', type=str, required=True, help="Venue is required")
-        self.parser.add_argument('start_time', type=datetime, required=True, help="StartTime is required", default=datetime.now())
-        self.parser.add_argument('end_time', type=datetime, required=True, help="EndTime is required", default=datetime.now())
+        self.parser.add_argument('start_time', type=datetime, required=False, help="StartTime is required", default=datetime.now())
+        self.parser.add_argument('end_time', type=datetime, required=False, help="EndTime is required", default=datetime.now())
         super(OfferEndpoint, self).__init__()
 
     @login_required
@@ -81,7 +81,7 @@ class UserEndpoint(Resource):
         db.session.add(user)
         db.session.commit()
         login_user(user)
-        return '', 200
+        return json.dumps(user.toJSON()), 200
 
 api.add_resource(Root, '/')
 api.add_resource(MyOffersList, '/offers/mine')
