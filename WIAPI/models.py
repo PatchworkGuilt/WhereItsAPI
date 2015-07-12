@@ -1,18 +1,23 @@
 from WIAPI import db
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, DateTime, Enum
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.declarative import declarative_base
 import datetime
 import base64
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class Offer(db.Model):
 	__tablename__ = 'offers'
-	id = db.Column(db.Integer, primary_key=True)
-	title = db.Column(db.String)
-	description = db.Column(db.String)
-	venue = db.Column(db.String)
-	start_time = db.Column(db.DateTime)
-	end_time = db.Column(db.DateTime)
-	created_at = db.Column(db.DateTime)
+	id = Column(Integer, primary_key=True)
+	title = Column(String)
+	description = Column(String)
+	venue = Column(String)
+	start_time = Column(DateTime)
+	end_time = Column(DateTime)
+	created_at = Column(DateTime)
+	users = association_proxy('user_offers', 'user', creator=lambda u: UserOfferResponse(user=u))
 
 	def __init__(self, title, description, venue, start_time, end_time):
 		self.title = title
@@ -31,14 +36,15 @@ class Offer(db.Model):
 
 class User(db.Model):
 	__tablename__ = 'users'
-	id = db.Column(db.Integer, primary_key=True)
-	first_name = db.Column(db.String, nullable=False)
-	last_name = db.Column(db.String, nullable=False)
-	email = db.Column(db.String, index=True, unique=True)
-	facebook_id = db.Column(db.String)
-	hash = db.Column(db.String)
-	type = db.Column(db.Enum('Customer', 'Staff', name='user_types'), default='Customer')
-	created_at = db.Column(db.DateTime)
+	id = Column(Integer, primary_key=True)
+	first_name = Column(String, nullable=False)
+	last_name = Column(String, nullable=False)
+	email = Column(String, index=True, unique=True)
+	facebook_id = Column(String)
+	hash = Column(String)
+	type = Column(Enum('Customer', 'Staff', name='user_types'), default='Customer')
+	created_at = Column(DateTime)
+	offers = association_proxy('offer_users', 'offer', creator=lambda o: UserOfferResponse(offer=o))
 
 	def __init__(self, first_name, last_name, email, password, facebook_id=None, type='Customer'):
 		self.first_name = first_name
@@ -86,3 +92,20 @@ class User(db.Model):
 			'auth_token': self.get_auth_token()
 		})
 		return user
+
+class UserOfferResponse(db.Model):
+	__tablename__ = 'user_offer_responses'
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('users.id'))
+	offer_id = Column(Integer, ForeignKey('offers.id'))
+	response = Column(String)
+	created_at = Column(DateTime)
+
+	offer = relationship(Offer, backref=backref("user_offers", cascade="all, delete-orphan"))
+	user = relationship(User, backref=backref("offer_users", cascade="all, delete-orphan"))
+
+	def __init__(self, offer=None, user=None, response="", created_at=datetime.datetime.now()):
+		self.response = response
+		self.offer = offer
+		self.user = user
+		self.created_at = created_at
