@@ -34,6 +34,12 @@ class Offer(db.Model):
 		whitelist = ['id', 'title', 'venue', 'description', 'start_time', 'end_time']
 		return {attr: getattr(self, attr) for attr in whitelist}
 
+	def json_for_user(self, user):
+		json = self.toJSON()
+		response = UserOfferResponse.find_by_offer_and_user(self, user)
+		json['response'] = response.response if response else None
+		return json
+
 class User(db.Model):
 	__tablename__ = 'users'
 	id = Column(Integer, primary_key=True)
@@ -109,3 +115,21 @@ class UserOfferResponse(db.Model):
 		self.offer = offer
 		self.user = user
 		self.created_at = created_at
+
+	def __repr__(self):
+		return '<UserOfferResponse {}: {}<->{}: {}>'.format(self.id, self.offer.id, self.user.email, self.response)
+
+	def toJSON(self):
+		return {'response': self.response}
+
+	@staticmethod
+	def find_by_offer_and_user(offer, user):
+		return UserOfferResponse.query.filter(UserOfferResponse.user_id == user.id)\
+												.filter(UserOfferResponse.offer_id == offer.id).first()
+
+class ValidResponses(object):
+	ACCEPT = "ACCEPT"
+	DECLINE = "DECLINE"
+	BLOCK_VENUE = "BLOCK_VENUE"
+	TIMEOUT_VENUE = "TIMEOUT_VENUE"
+	FLAG_INAPPROPRIATE = "INAPPROPRIATE"

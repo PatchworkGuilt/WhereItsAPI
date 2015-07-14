@@ -1,7 +1,7 @@
 import json
 from flask import request, abort, render_template, flash, url_for, redirect
 from flask.ext.restful import reqparse, Resource
-from flask.ext.login import LoginManager, login_required, UserMixin, login_user, logout_user
+from flask.ext.login import LoginManager, login_required, UserMixin, login_user, logout_user, current_user
 from WIAPI import app, api, db
 from WIAPI import models
 import base64
@@ -33,21 +33,18 @@ class OfferEndpoint(Resource):
         db.session.commit()
         return '', 200
 
-    @login_required
-    def delete(self, offer_id):
-        #mongo.db.offers.find_one_or_404({"_id": offer_id})
-        #mongo.db.offers.remove({"_id": offer_id})
-        return '', 204
-
     def get(self, offer_id):
         offer = models.Offer.query.get(offer_id)
-        return offer.toJSON()
+        return offer.json_for_user(current_user)
 
 class MyOffersList(Resource):
     @login_required
     def get(self):
-        offers = models.Offer.query.all()
-        return [offer.toJSON() for offer in offers]
+        offers = []
+        for user_response in models.UserOfferResponse.query.filter(models.UserOfferResponse.user_id==current_user.id).all():
+            offer_json = user_response.offer.json_for_user(current_user)
+            offers.append(offer_json)
+        return offers
 
 class NearbyOffersList(Resource):
     def get(self):
@@ -83,9 +80,42 @@ class UserEndpoint(Resource):
         login_user(user)
         return json.dumps(user.toJSON()), 200
 
+class UserOfferEndpoint(Resource):
+    def __init__(self, *args, **kwargs):
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('response', type=str, required=True, help="Response is required")
+
+    def get_response_from_post(self, args):
+        res = args['response']
+        response_map = {
+            "accept": models.ValidResponses.ACCEPT, 
+            "decline":  models.ValidResponses.DECLINE,
+            "hate:block":  models.ValidResponses.BLOCK_VENUE,
+            "hate:timeout":  models.ValidResponses.TIMEOUT_VENUE,
+            "hate:inappropriate":  models.ValidResponses.FLAG_INAPPROPRIATE
+        }
+        return response_map.get(res, None)
+
+    @login_required
+    def post(self, offer_id):
+        args = self.parser.parse_args();
+        response = self.get_response_from_post(args)
+        if not response:
+            return "Invalid Response", 401
+        offer = models.Offer.query.get(offer_id)
+        user_response = models.UserOfferResponse.find_by_offer_and_user(offer, current_user)
+        if user_response:
+            user_response.response = response
+        else:
+            user_response = models.UserOfferResponse(offer, current_user, response, datetime.now())
+        db.session.add(user_response)
+        db.session.commit()
+        return user_response.toJSON(), 200
+
 api.add_resource(Root, '/')
 api.add_resource(MyOffersList, '/offers/mine')
 api.add_resource(NearbyOffersList, '/offers/nearby')
+api.add_resource(UserOfferEndpoint, '/offers/<offer_id>/response')
 api.add_resource(OfferEndpoint, '/offers/<offer_id>', '/offers')
 api.add_resource(UserEndpoint, '/users')
 
