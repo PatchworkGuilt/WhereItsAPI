@@ -128,6 +128,7 @@ class UserOfferResponse(db.Model):
 												.filter(UserOfferResponse.offer_id == offer.id).first()
 
 class ValidResponses(object):
+	OFFERED = "OFFERED"
 	ACCEPT = "ACCEPT"
 	DECLINE = "DECLINE"
 	BLOCK_VENUE = "BLOCK_VENUE"

@@ -38,17 +38,21 @@ class OfferEndpoint(Resource):
         return offer.json_for_user(current_user)
 
 class MyOffersList(Resource):
+    ACCEPTABLE_RESPONSES = [models.ValidResponses.ACCEPT, models.ValidResponses.OFFERED]
+
     @login_required
     def get(self):
         offers = []
-        for user_response in models.UserOfferResponse.query.filter(models.UserOfferResponse.user_id==current_user.id).all():
+        for user_response in models.UserOfferResponse.query.filter(models.UserOfferResponse.user_id==current_user.id) \
+                                                            .filter(models.UserOfferResponse.response.in_(self.ACCEPTABLE_RESPONSES)) \
+                                                            .order_by(models.UserOfferResponse.created_at.desc()):
             offer_json = user_response.offer.json_for_user(current_user)
             offers.append(offer_json)
         return offers
 
 class NearbyOffersList(Resource):
     def get(self):
-        offers = models.Offer.query.all()
+        offers = models.Offer.query.order_by(models.Offer.created_at.desc())
         return [offer.toJSON() for offer in offers]
 
 class Root(Resource):
