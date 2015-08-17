@@ -124,6 +124,8 @@ class UserOfferResponse(db.Model):
 
 	@staticmethod
 	def find_by_offer_and_user(offer, user):
+		if not user.is_authenticated():
+			return None
 		return UserOfferResponse.query.filter(UserOfferResponse.user_id == user.id)\
 												.filter(UserOfferResponse.offer_id == offer.id).first()
 

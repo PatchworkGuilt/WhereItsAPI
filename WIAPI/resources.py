@@ -155,7 +155,6 @@ def login():
     return '', 401
 
 @app.route("/logout", methods=['POST'])
-@login_required
 def logout():
     logout_user()
     return '', 200
