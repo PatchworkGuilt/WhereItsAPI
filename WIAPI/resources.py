@@ -116,12 +116,21 @@ class UserOfferEndpoint(Resource):
         db.session.commit()
         return user_response.toJSON(), 200
 
+class AudienceEndpoint(Resource):
+    @login_required
+    def get(self):
+        return {
+            'confirmed': 37,
+            'new': 56
+        }
+
 api.add_resource(Root, '/')
 api.add_resource(MyOffersList, '/offers/mine')
 api.add_resource(NearbyOffersList, '/offers/nearby')
 api.add_resource(UserOfferEndpoint, '/offers/<offer_id>/response')
 api.add_resource(OfferEndpoint, '/offers/<offer_id>', '/offers')
-api.add_resource(UserEndpoint, '/users')
+api.add_resource(UserEndpoint, '/users'),
+api.add_resource(AudienceEndpoint, '/audience')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
