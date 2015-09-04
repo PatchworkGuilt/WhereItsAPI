@@ -30,9 +30,15 @@ class Offer(db.Model):
 	def __repr__(self):
 		return '<Offer {}: {}>'.format(self.id, self.title)
 
+	def get_image_url(self):
+		urls = ['images/restaurant1.JPG', 'images/restaurant2.jpg', 'images/restaurant3.jpg']
+		return urls[int(self.id) % len(urls)]
+
 	def toJSON(self):
 		whitelist = ['id', 'title', 'venue', 'description', 'start_time', 'end_time']
-		return {attr: getattr(self, attr) for attr in whitelist}
+		json = {attr: getattr(self, attr) for attr in whitelist}
+		json['imageURL'] = self.get_image_url()
+		return json
 
 	def json_for_user(self, user):
 		json = self.toJSON()
